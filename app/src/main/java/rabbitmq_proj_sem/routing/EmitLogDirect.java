@@ -18,7 +18,7 @@ public class EmitLogDirect {
 
       String[] serverities = new String[] {"1", "2", "3"};
 
-      for (int msgCnt = 0; msgCnt < 1000s000; msgCnt++) {
+      for (int msgCnt = 0; msgCnt < 1000; msgCnt++) {
         for (String server : serverities) {
 
           String severity = server;
@@ -31,5 +31,4 @@ public class EmitLogDirect {
       }
     }
   }
-  // ..
 }
