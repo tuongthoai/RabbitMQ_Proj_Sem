@@ -55,6 +55,26 @@ tasks.register('Demo.WorkQueue.runReceiver', JavaExec) {
     main = 'rabbitmq_proj_sem.work_queue.Receiver'
 }
 
+tasks.register('Demo.PubSub.runSender', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.pub_sub_model.EmitLog'
+}
+
+tasks.register('Demo.PubSub.runReceiver', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.pub_sub_model.ReceiveLogs'
+}
+
+tasks.register('Demo.Routing.runSender', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.routing.EmitLogDirect'
+}
+
+tasks.register('Demo.Routing.runReceiver', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.routing.ReceiveLogsDirect'
+}
+
 application {
     // Define the main class for the application.
     mainClass = 'rabbitmq_proj_sem.App'
