@@ -1,8 +1,9 @@
-package rabbitmq_proj_sem.sender_receiver;
+package rabbitmq_proj_sem.work_queue;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 
 public class Sender {
 
@@ -14,9 +15,19 @@ public class Sender {
     try (Connection connection = factory.newConnection();
         Channel channel = connection.createChannel()) {
       channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-      String message = "Hello World!";
-      channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-      System.out.println(" [x] Sent '" + message + "'");
+
+      for (int i = 0; i < 10; i++) {
+        String message = "ID: " + i + " ACTION: Hello World!";
+        channel.basicPublish(
+            "",
+            QUEUE_NAME,
+            MessageProperties.PERSISTENT_TEXT_PLAIN,
+            message
+                .getBytes());
+        // the diff is the MessageProperties text plain to allow the Broker to
+        // persist the data.
+        System.out.println(" [x] Sent '" + message + "'");
+      }
     }
   }
 }

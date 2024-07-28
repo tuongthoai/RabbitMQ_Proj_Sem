@@ -1,4 +1,4 @@
-package rabbitmq_proj_sem.sender_receiver;
+package rabbitmq_proj_sem.work_queue;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -16,16 +16,28 @@ public class Receiver {
     Connection connection = factory.newConnection();
     Channel channel = connection.createChannel();
 
-    channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+    boolean durable = true;
+    channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
     System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
     DeliverCallback deliverCallback =
         (consumerTag, delivery) -> {
           String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+
           System.out.println(" [x] Received '" + message + "'");
+          try {
+            doWork(message);
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          } finally {
+            System.out.println(" [x] Done");
+            channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+          }
         };
 
-    channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {});
+    boolean autoAck = false;
+    channel.basicConsume(QUEUE_NAME, autoAck, deliverCallback, consumerTag -> {});
+    channel.basicQos(1); // accept only one unack-ed message at a time
 
     // Keep the main thread alive to continue listening for messages
     Runtime.getRuntime()
@@ -44,6 +56,12 @@ public class Receiver {
     // Keep the application running indefinitely
     synchronized (Receiver.class) {
       Receiver.class.wait();
+    }
+  }
+
+  private static void doWork(String task) throws InterruptedException {
+    for (char ch : task.toCharArray()) {
+      if (ch == '.') Thread.sleep(1000);
     }
   }
 }

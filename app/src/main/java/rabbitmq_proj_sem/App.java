@@ -11,23 +11,23 @@ import java.util.concurrent.TimeoutException;
 
 public class App {
 
-    private final static String QUEUE_NAME = "hello_queue";
+  private static final String QUEUE_NAME = "hello_queue";
 
-    public static void main(String[] args) {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        try (Connection connection = factory.newConnection();
-            Channel channel = connection.createChannel()) {
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            String message = "Hello World!";
-            channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-            System.out.println(" [x] Sent '" + message + "'");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+  public static void main(String[] args) {
+    ConnectionFactory factory = new ConnectionFactory();
+    factory.setHost("localhost");
+    try (Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel()) {
+      channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+      String message = "Hello World!";
+      channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+      System.out.println(" [x] Sent '" + message + "'");
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+  }
 
-    public String getGreeting() {
-        return "Hello World!";
-    }
+  public String getGreeting() {
+    return "Hello World!";
+  }
 }

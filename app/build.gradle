@@ -35,14 +35,24 @@ testing {
     }
 }
 
-task runSender(type: JavaExec) {
+tasks.register('Demo.HelloWorld.runSender', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'rabbitmq_proj_sem.sender_receiver.Sender'
 }
 
-task runReceiver(type: JavaExec) {
+tasks.register('Demo.HelloWorld.runReceiver', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'rabbitmq_proj_sem.sender_receiver.Receiver'
+}
+
+tasks.register('Demo.WorkQueue.runSender', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.work_queue.Sender'
+}
+
+tasks.register('Demo.WorkQueue.runReceiver', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.work_queue.Receiver'
 }
 
 application {
