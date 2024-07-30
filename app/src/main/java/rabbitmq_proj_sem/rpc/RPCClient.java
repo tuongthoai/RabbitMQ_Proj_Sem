@@ -27,7 +27,7 @@ public class RPCClient implements AutoCloseable {
 
     public String call(String message) throws IOException, InterruptedException {
         final String corrId = UUID.randomUUID().toString();
-
+//        String corrId = "1234"; // for duplicate request testing
         String replyQueueName = channel.queueDeclare().getQueue();
         AMQP.BasicProperties props = new AMQP.BasicProperties
                 .Builder()
@@ -59,6 +59,7 @@ public class RPCClient implements AutoCloseable {
             for (int i = 0; i < 10; i++) {
                 String i_str = Integer.toString(i);
                 System.out.println(" [x] Requesting fib(" + i_str + ")");
+//                fibonacciRpc.call(i_str);
                 String response = fibonacciRpc.call(i_str);
                 System.out.println(" [.] Got '" + response + "'");
             }

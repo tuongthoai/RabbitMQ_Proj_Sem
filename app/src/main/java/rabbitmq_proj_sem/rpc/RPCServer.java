@@ -2,8 +2,12 @@ package rabbitmq_proj_sem.rpc;
 
 import com.rabbitmq.client.*;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class RPCServer {
     private static final String RPC_QUEUE_NAME = "rpc_queue";
+    private static final Map<String, String> cache = new ConcurrentHashMap<>();
 
     private static int fib(int n) {
         if (n == 0) return 0;
@@ -29,11 +33,20 @@ public class RPCServer {
                 String response = "";
 
                 try {
+                    String corrId = delivery.getProperties().getCorrelationId();
                     String message = new String(delivery.getBody(), "UTF-8");
                     int n = Integer.parseInt(message);
 
-                    System.out.println(" [.] fib(" + message + ")");
-                    response += fib(n);
+                    if (cache.containsKey(corrId)) {
+                        System.out.println(" [.] Duplicate request! Cached response: " + cache.get(corrId));
+                        response = "Duplicate request! Cached response: " + cache.get(corrId);
+                    } else {
+                        int result = fib(n);
+                        response += "Response: " + result;
+                        cache.put(corrId, response);
+                    }
+
+                    System.out.println(" [.] fib(" + message + ") " + corrId);
                 } catch (RuntimeException e) {
                     System.out.println(" [.] " + e.toString());
                 } finally {
