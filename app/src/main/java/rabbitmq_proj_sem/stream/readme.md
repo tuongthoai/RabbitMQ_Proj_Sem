@@ -129,3 +129,17 @@ The code to declare a single active consumer is almost the same as for a regular
 
 https://www.rabbitmq.com/blog/2022/07/05/rabbitmq-3-11-feature-preview-single-active-consumer-for-streams
 
+## Compare to simple queue
+![img.png](img.png)
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+![img_3.png](img_3.png)
+![img_4.png](img_4.png)
+![img_5.png](img_5.png)
+![img_6.png](img_6.png)
+![img_7.png](img_7.png)
+
+## Performance Comparison
+
+![img_8.png](img_8.png)
+![img_9.png](img_9.png)
