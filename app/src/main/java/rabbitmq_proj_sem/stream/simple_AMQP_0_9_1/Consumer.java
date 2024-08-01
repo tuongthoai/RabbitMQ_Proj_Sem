@@ -58,7 +58,7 @@ public class Consumer {
       Map<String, Object> properties = new HashMap<>();
       properties.put("x-stream-offset", "first");
       properties.put("x-stream-filter", "california");
-//      properties.put("x-stream-match-unfiltered", true);
+      //      properties.put("x-stream-match-unfiltered", true);
       //      properties.put(
       //          "x-stream-filter", new ArrayList<String>(List.of(new String[] {"california",
       // "usa"})));
@@ -74,7 +74,12 @@ public class Consumer {
             // there must be some client-side filter logic
             System.out.println(headers);
 
-            if ("california".equals(String.valueOf(headers.get("x-stream-filter-value")))) {
+            if ("california"
+                .equals(
+                    String.valueOf(
+                        headers.get(
+                            "x-stream-filter-value")))) { // why String value of ? It is because our
+              // properties is Map<String, Object>
               String msg = new String(message.getBody(), StandardCharsets.UTF_8);
               System.out.println("RECEIVED FILTERED MESSAGE: " + msg);
             } else {
