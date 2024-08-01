@@ -87,6 +87,15 @@ tasks.register('Demo.Topic.runReceiver', JavaExec) {
     main = 'rabbitmq_proj_sem.topic.ReceiveLogsTopic'
 }
 
+tasks.register('Demo.RPC.runServer', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.rpc.RPCServer'
+}
+tasks.register('Demo.RPC.runClient', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'rabbitmq_proj_sem.rpc.RPCClient'
+}
+
 sourceSets {
     main {
         java {
