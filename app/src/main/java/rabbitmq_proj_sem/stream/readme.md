@@ -143,3 +143,114 @@ https://www.rabbitmq.com/blog/2022/07/05/rabbitmq-3-11-feature-preview-single-ac
 
 ![img_8.png](img_8.png)
 ![img_9.png](img_9.png)
+
+## To start a Docker Container for locally development with RabbitMQ
+https://rabbitmq.github.io/rabbitmq-stream-java-client/stable/htmlsingle/
+
+## RabbitMQ Stream Java API
+Source: https://rabbitmq.github.io/rabbitmq-stream-java-client/stable/htmlsingle/#rabbitmq-stream-java-api
+
+### Main components
+1. com.rabbitmq.stream.Environment for connecting to a node and optionally managing streams.
+2. com.rabbitmq.stream.Producer to publish messages.
+3. com.rabbitmq.stream.Consumer to consume messages
+
+### Environment
+
+The most crucial part as it is the main entry point to a node or a cluster of nodes and the Consumer and Producer is created from this `Environment`
+
+> Localhost:
+> 
+> Environment environment = Environment.builder().build(); // to localhost:5552  
+> // ...
+> environment.close();
+
+Single Node:
+```java
+Environment environment = Environment.builder()
+        .uri("rabbitmq-stream://guest:guest@localhost:5552/%2f")  // https://www.rabbitmq.com/docs/uri-spec****
+        .build();
+```
+
+MultiNode:
+```java
+Environment environment = Environment.builder()
+        .uris(Arrays.asList(                     
+                "rabbitmq-stream://host1:5552",
+                "rabbitmq-stream://host2:5552",
+                "rabbitmq-stream://host3:5552")
+        )
+        .build();
+```
+
+### Managing Stream 
+To create a stream:
+> environment.streamCreator().stream("my-stream").create();
+
+The "my-stream" is the stream name
+
+To delete stream 
+> environment.deleteStream("my-stream");
+
+#### Note:
+It is necessary to create a stream with the same name and properties multiple times since it will create once.
+However, create multiple stream with the same name and different properties is throwing an exception 
+
+#### Stream retention policy:
+The rabbitMq supports 2 types:
+First is Size base.
+```java
+environment.streamCreator()
+        .stream("my-stream")
+        .maxLengthBytes(ByteCapacity.GB(10))  
+        .maxSegmentSizeBytes(ByteCapacity.MB(500))  
+        .create();
+```
+> Set the maximum size to 10 GB
+
+> Set the segment size to 500 MB
+
+Segment size is a single file to store a single part of a stream. If RabbitMQ Stream remove data it will remove entire segment.
+
+The second one is time base.
+```java
+environment.streamCreator()
+        .stream("my-stream")
+        .maxAge(Duration.ofHours(6))  
+        .maxSegmentSizeBytes(ByteCapacity.MB(500))  
+        .create();
+```
+
+### Producer
+#### 1. Creation
+It must be created using the `Environment`. The Producer should be use to send multiple records (not one record only).
+
+```java
+Producer producer = environment.producerBuilder()  
+        .stream("my-stream")  
+        .build();  
+// ...
+producer.close();
+```
++ Use Environment#producerBuilder() to define the producer
++ Specify the stream to publish to
++ Create the producer instance with build()
++ Close the producer after usage
+> Producer is thread-safe
+
+The parameter that we can set to create a producer
+
+| Parameter Name           | Description                                                                                                                                                                                                                                                                                                                                                                                            | Default                                  |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------|
+| `stream`                 | The stream to publish to.                                                                                                                                                                                                                                                                                                                                                                              | No default, mandatory setting.           |
+| `name`                   | The logical name of the producer. Specify a name to enable [message deduplication](link).                                                                                                                                                                                                                                                                                                              | `null` (no deduplication)                |
+| `batchSize`              | The maximum number of messages to accumulate before sending them to the broker.                                                                                                                                                                                                                                                                                                                        | 100                                      |
+| `subEntrySize`           | The number of messages to put in a sub-entry. A sub-entry is one "slot" in a publishing frame, meaning outbound messages are not only batched in publishing frames, but in sub-entries as well. Use this feature to increase throughput at the cost of increased latency and potential duplicated messages even when deduplication is enabled. See the [dedicated section](link) for more information. | 1 (meaning no use of sub-entry batching) |
+| `compression`            | Compression algorithm to use when sub-entry batching is in use. See the [dedicated section](link) for more information.                                                                                                                                                                                                                                                                                | `Compression.NONE`                       |
+| `maxUnconfirmedMessages` | The maximum number of unconfirmed outbound messages. `Producer#send` will start blocking when the limit is reached.                                                                                                                                                                                                                                                                                    | 10,000                                   |
+| `batchPublishingDelay`   | Period to send a batch of messages.                                                                                                                                                                                                                                                                                                                                                                    | 100 ms                                   |
+| `confirmTimeout`         | Time before the client calls the confirm callback to signal outstanding unconfirmed messages timed out.                                                                                                                                                                                                                                                                                                | 30 seconds                               |
+| `enqueueTimeout`         | Time before enqueueing of a message fail when the maximum number of unconfirmed is reached. The callback of the message will be called with a negative status. Set the value to `Duration.ZERO` if there should be no timeout.                                                                                                                                                                         | 10 seconds                               |
+
+#### 2. Sending message
+
