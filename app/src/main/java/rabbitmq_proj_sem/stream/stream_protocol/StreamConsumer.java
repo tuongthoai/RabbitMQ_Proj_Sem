@@ -20,7 +20,7 @@ public class StreamConsumer {
     // end::sample-environment[]
     // tag::sample-publisher[]
     System.out.println("Starting publishing...");
-    int messageCount = 10000;
+    int messageCount = 10_000;
     CountDownLatch publishConfirmLatch = new CountDownLatch(messageCount);
     Producer producer = environment.producerBuilder().stream(stream).build();
     IntStream.range(0, messageCount)

@@ -16,7 +16,7 @@ public class Receiver {
     Connection connection = factory.newConnection();
     Channel channel = connection.createChannel();
 
-    boolean durable = true;
+    boolean durable = false;
     channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
     System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
